@@ -38,6 +38,7 @@ class Connection(info: ConnectionInformation, parent: ActorRef) extends Actor {
     if (pos >= 0) { // if we found one
       val msg = data.slice(0, pos).utf8String
       println(msg)
+      println(parser(msg))
       processData(data.drop(pos+2))
     } else {
       buf = data

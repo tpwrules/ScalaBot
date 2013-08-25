@@ -4,9 +4,7 @@ import akka.util.{ByteStringBuilder, ByteString}
 
 object protocol {
   val SP = ByteString(" ")
-}
 
-class protocol {
   sealed trait ProtocolMessage {
     val byteString: ByteString
   }
@@ -22,11 +20,11 @@ class protocol {
 
   case class Command(value: String) extends SimpleProtocolMessage
 
-  case class Message(source: Option[Source], command: Command, params: List[String], data: Option[String]) {
-    val byteString = new ByteStringBuilder ++=
+  case class Message(source: Option[Source], command: Command, params: List[String], data: Option[String]) extends ProtocolMessage {
+    val byteString = (new ByteStringBuilder ++=
       source.map { _.byteString }.getOrElse(ByteString("")) ++=
       command.byteString ++= protocol.SP ++=
       ByteString(params.mkString(" ")) ++=
-      ByteString(data.map { " :" + _ } getOrElse "")
+      ByteString(data.map { " :" + _ } getOrElse "")).result()
   }
 }
