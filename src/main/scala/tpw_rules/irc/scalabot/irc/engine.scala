@@ -24,5 +24,4 @@ class Engine extends Actor {
     case Terminated(connection) =>
       connections = connections filter { _ != connection }
   }
-
 }
