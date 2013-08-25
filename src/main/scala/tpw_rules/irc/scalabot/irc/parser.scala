@@ -69,7 +69,7 @@ object parser extends RegexParsers {
   lazy val host = """[a-zA-Z0-9.\-^_\-\[\]\\`]+""".r
   lazy val nick = """[a-zA-Z][a-zA-Z0-9\-\[\]\|\\\`\^\{\}]*""".r
 
-  lazy val blackspace = """[^\r\n\@]*""".r
+  lazy val blackspace = """[^ \r\n\@]*""".r
   lazy val word = """[a-zA-Z]*""".r
   lazy val number = """[0-9]""".r
 }
