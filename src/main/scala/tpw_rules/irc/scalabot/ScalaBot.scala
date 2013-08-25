@@ -11,7 +11,7 @@ object ScalaBot extends App {
 
   override def main(args: Array[String]) = {
     println("hi")
-    val v = ConnectionInformation(new InetSocketAddress("irc.esper.net", 6667), "olol", "lolo", None)
+    val v = ConnectionInformation(new InetSocketAddress("irc.esper.net", 6667), "olololo", "lolo", None)
     engine ! Connect(v)
   }
 }
