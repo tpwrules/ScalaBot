@@ -16,6 +16,7 @@ class Engine extends Actor {
       val newConn = context.actorOf(Connection.props(info, self))
       context.watch(newConn) // make sure we know when it dies
       connections = newConn :: connections
+      newConn ! Initialize()
     case Shutdown() =>
       connections foreach { connection =>
         context.unwatch(connection)
