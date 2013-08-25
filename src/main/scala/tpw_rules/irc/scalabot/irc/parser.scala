@@ -32,9 +32,13 @@ import tpw_rules.irc.scalabot.irc.protocol.{Command, Source, Message}
 // dis gun b complicated
 object parser extends RegexParsers {
   override def skipWhitespace = false
-  def apply(input: String) = parseAll(message, input)
+  def apply(input: String) =
+    parseAll(message, input) match {
+      case Success(result, _) => result
+      case f: NoSuccess => println("FAILURE", f)
+    }
 
-  def message: Parser[Message] = {
+  lazy val message: Parser[Message] = {
     opt(":" ~> source <~ space) ~
     command ~
     params ~
@@ -43,17 +47,17 @@ object parser extends RegexParsers {
     }
   }
 
-  def source: Parser[Source] = {
-    (host | nick) ~ opt("!" ~> nick) ~ opt('@' ~> host) ^^ {
+  lazy val source: Parser[Source] = {
+    nick ~ opt("!" ~> nick) ~ opt('@' ~> host) ^^ {
       case n~u~h => Source(n, u, h)
     }
   }
 
-  def command: Parser[Command] =
+  lazy val command: Parser[Command] =
     ("""[0-9]{3}""".r | word) ^^ Command
 
-  def params = {
-    space ~> opt(repsep(middle, " ")) ^^ {
+  lazy val params = {
+    opt(space ~> rep1sep(middle, " ")) ^^ {
       _.getOrElse(List())
     }
   }
@@ -63,7 +67,7 @@ object parser extends RegexParsers {
   lazy val trailing = """[^\r\n]+""".r
 
   lazy val host = """[a-zA-Z0-9.\-^_\-\[\]\\`]+""".r
-  lazy val nick = """(\p{L}|[0-9]|[-_\[\]\\`^\{\}])+""".r
+  lazy val nick = """[a-zA-Z][a-zA-Z0-9\-\[\]\|\\\`\^\{\}]*""".r
 
   lazy val blackspace = """[^ \r\n]""".r
   lazy val word = """[a-zA-Z]*""".r

@@ -30,30 +30,31 @@ object protocol {
 
   object Ping {
     def apply(id: String) =
-      Message(None, Command("PING"), List(id), None)
-    def unapply(msg: Message) =
+      Message(None, Command("PING"), List(), Option(id))
+    def unapply(msg: Message) = {
       msg match {
-        case Message(_, Command("PING"), List(id), _) => Some(id)
+        case Message(_, Command("PING"), _, id) => id
         case _ => None
       }
+    }
   }
 
   object Pong {
     def apply(id: String) =
-      Message(None, Command("PONG"), List(id), None)
+      Message(None, Command("PONG"), List(), Option(id))
     def unapply(msg: Message) =
       msg match {
-        case Message(_, Command("PONG"), List(id), None) => Some(id)
+        case Message(_, Command("PONG"), _, id) => Some(id)
         case _ => None
       }
   }
 
   object Nick {
     def apply(nick: String) =
-      Message(None, Command("NICK"), List(nick), None)
+      Message(None, Command("NICK"), List(), Some(nick))
     def unapply(msg: Message) =
       msg match {
-        case Message(_, Command("NICK"), List(nick), None) => Some(nick)
+        case Message(_, Command("NICK"), List(), nick) => nick
         case _ => None
       }
   }
@@ -74,6 +75,15 @@ object protocol {
     def unapply(msg: Message) =
       msg match {
         case Message(_, Command("USER"), List(nick, _, _), realName) => Some((nick, realName))
+      }
+  }
+
+  object Join {
+    def apply(chan: String) =
+      Message(None, Command("JOIN"), List(chan), None)
+    def unapply(msg: Message) =
+      msg match {
+        case Message(_, Command("JOIN"), List(chan), None) => Some(chan)
       }
   }
 }

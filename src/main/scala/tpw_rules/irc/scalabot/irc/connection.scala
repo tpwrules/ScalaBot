@@ -51,7 +51,9 @@ class Connection(info: ConnectionInformation, parent: ActorRef) extends Actor {
     if (pos >= 0) { // if we found one
       val msg = data.slice(0, pos).utf8String
       println(msg)
-      self ! parser(msg)
+      val v = parser(msg)
+      println(v)
+      self ! v
       processData(data.drop(pos+2))
     } else {
       buf = data
@@ -60,6 +62,8 @@ class Connection(info: ConnectionInformation, parent: ActorRef) extends Actor {
 
   def processMessage(msg: Message) =
     msg match {
-      case Ping(id) => self ! Pong(id)
+      case Ping(id) => self ! SendMessage(Pong(id))
+      case Message(_, Command("001"), _, _) => self ! SendMessage(Join("#Minetweak"))
+      case _ => Unit
     }
 }
