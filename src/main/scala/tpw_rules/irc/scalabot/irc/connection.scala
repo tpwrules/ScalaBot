@@ -2,10 +2,11 @@ package tpw_rules.irc.scalabot.irc
 
 import java.net.InetSocketAddress
 import akka.actor.{ActorRef, Props, Actor}
-import tpw_rules.irc.scalabot.irc.EngineMessages.Initialize
+import tpw_rules.irc.scalabot.irc.EngineMessages.{SendMessage, Initialize}
 import akka.io.Tcp
 import tpw_rules.irc.scalabot.ScalaBot
 import akka.util.ByteString
+import tpw_rules.irc.scalabot.irc.protocol._
 
 case class ConnectionInformation(addr: InetSocketAddress, nick: String, name: String, pass: Option[String])
 
@@ -28,8 +29,20 @@ class Connection(info: ConnectionInformation, parent: ActorRef) extends Actor {
     case Tcp.Connected(remote, local) =>
       tcp = sender
       tcp ! Tcp.Register(self)
+      self ! SendMessage(Nick(info.nick))
+      self ! SendMessage(User(info.nick, info.name))
+      info.pass match {
+        case Some(pass) => self ! SendMessage(Pass(pass))
+        case None =>
+      }
     case Tcp.Received(data) =>
       processData(buf ++ data)
+
+    case msg: Message =>
+      processMessage(msg)
+    case SendMessage(msg) =>
+      println("SEND", msg.byteString.utf8String)
+      tcp ! Tcp.Write(msg.byteString ++ Connection.lineEnd)
   }
 
   def processData(data: ByteString): Unit = {
@@ -38,10 +51,15 @@ class Connection(info: ConnectionInformation, parent: ActorRef) extends Actor {
     if (pos >= 0) { // if we found one
       val msg = data.slice(0, pos).utf8String
       println(msg)
-      println(parser(msg))
+      self ! parser(msg)
       processData(data.drop(pos+2))
     } else {
       buf = data
     }
   }
+
+  def processMessage(msg: Message) =
+    msg match {
+      case Ping(id) => self ! Pong(id)
+    }
 }

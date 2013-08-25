@@ -27,4 +27,53 @@ object protocol {
       ByteString(params.mkString(" ")) ++=
       ByteString(data.map { " :" + _ } getOrElse "")).result()
   }
+
+  object Ping {
+    def apply(id: String) =
+      Message(None, Command("PING"), List(id), None)
+    def unapply(msg: Message) =
+      msg match {
+        case Message(_, Command("PING"), List(id), _) => Some(id)
+        case _ => None
+      }
+  }
+
+  object Pong {
+    def apply(id: String) =
+      Message(None, Command("PONG"), List(id), None)
+    def unapply(msg: Message) =
+      msg match {
+        case Message(_, Command("PONG"), List(id), None) => Some(id)
+        case _ => None
+      }
+  }
+
+  object Nick {
+    def apply(nick: String) =
+      Message(None, Command("NICK"), List(nick), None)
+    def unapply(msg: Message) =
+      msg match {
+        case Message(_, Command("NICK"), List(nick), None) => Some(nick)
+        case _ => None
+      }
+  }
+
+  object Pass {
+    def apply(pass: String) =
+      Message(None, Command("PASS"), List(pass), None)
+    def unapply(msg: Message) =
+      msg match {
+        case Message(_, Command("PASS"), List(pass), None) => Some(pass)
+        case _ => None
+      }
+  }
+
+  object User {
+    def apply(nick: String, realName: String) =
+      Message(None, Command("USER"), List(nick, "0", "0"), Some(realName))
+    def unapply(msg: Message) =
+      msg match {
+        case Message(_, Command("USER"), List(nick, _, _), realName) => Some((nick, realName))
+      }
+  }
 }
