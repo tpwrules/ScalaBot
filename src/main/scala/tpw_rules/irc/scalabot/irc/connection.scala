@@ -21,6 +21,10 @@ class Connection(info: ConnectionInformation, parent: ActorRef) extends Actor {
   var tcp: ActorRef = null
   var buf: ByteString = ByteString("")
 
+  implicit class Regex(sc: StringContext) {
+    def r = new util.matching.Regex(sc.parts.mkString, sc.parts.tail.map(_ => "x"): _*)
+  }
+
   def receive = {
     case Initialize() =>
       val tcpManager = Tcp.get(ScalaBot.system).manager
@@ -63,7 +67,8 @@ class Connection(info: ConnectionInformation, parent: ActorRef) extends Actor {
   def processMessage(msg: Message) =
     msg match {
       case Ping(id) => self ! SendMessage(Pong(id))
-      case Message(_, Command("001"), _, _) => self ! SendMessage(Join("#Minetweak"))
+      case Message(_, Command("001"), _, _) => self ! SendMessage(Join("#mcp-modding"))
+      case Privmsg(_, chan, r"([0-9]+)$num") => self ! SendMessage(Privmsg(chan, "The number of the day is "+num))
       case _ => Unit
     }
 }

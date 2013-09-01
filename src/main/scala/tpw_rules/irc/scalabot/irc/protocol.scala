@@ -86,4 +86,14 @@ object protocol {
         case Message(_, Command("JOIN"), List(chan), None) => Some(chan)
       }
   }
+
+  object Privmsg {
+    def apply(dest: String, message: String) =
+      Message(None, Command("PRIVMSG"), List(dest), Some(message))
+    def unapply(msg: Message) =
+      msg match {
+        case Message(Some(Source(who, _, _)), Command("PRIVMSG"), List(source), Some(message)) => Some((who, source, message))
+        case _ => None
+      }
+  }
 }

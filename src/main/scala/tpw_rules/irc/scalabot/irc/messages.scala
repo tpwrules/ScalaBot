@@ -2,7 +2,6 @@ package tpw_rules.irc.scalabot.irc
 
 import tpw_rules.irc.scalabot.irc.protocol.Message
 
-
 sealed trait IRCMessage
 
 object EngineMessages {
